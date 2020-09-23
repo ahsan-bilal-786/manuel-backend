@@ -1,26 +1,29 @@
-const app = require("../app");
-const faker = require("faker");
-const chai = require("chai");
-const chaiHttp = require("chai-http");
-const JWT = require("jsonwebtoken");
-const { hashPassword } = require("../helpers/auth");
-const { User } = require("../models");
+const app = require('../app');
+const faker = require('faker');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const JWT = require('jsonwebtoken');
+const randomstring = require('randomstring');
+const { hashPassword } = require('../helpers/auth');
+const { User } = require('../models');
 
 const { expect } = chai;
 chai.use(chaiHttp);
 
-describe("Users", () => {
-  it("Create Users", (done) => {
+describe('Users', () => {
+  it('Create Users', (done) => {
     const data = {
       name: faker.name.firstName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       contact: faker.phone.phoneNumber(),
       avatar: faker.image.imageUrl(),
+      isVerified: false,
+      verificationCode: randomstring.generate(),
     };
     chai
       .request(app)
-      .post("/users/")
+      .post('/users/')
       .send(data)
       .end((err, res) => {
         expect(res).to.have.status(201);
@@ -34,30 +37,32 @@ describe("Users", () => {
       });
   });
 
-  it("User Duplication Error on create user", (done) => {
+  it('User Duplication Error on create user', (done) => {
     const data = {
       name: faker.name.firstName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       contact: faker.phone.phoneNumber(),
       avatar: faker.image.imageUrl(),
+      isVerified: false,
+      verificationCode: randomstring.generate(),
     };
     User.create(data).then(() => {
       chai
         .request(app)
-        .post("/users/")
+        .post('/users/')
         .send(data)
         .end((err, res) => {
           expect(res).to.have.status(500);
           expect(res.body.message).to.equals(
-            "A user has already registered with this email."
+            'A user has already registered with this email.'
           );
           done();
         });
     });
   });
 
-  it("User Authentication", async () => {
+  it('User Authentication', async () => {
     const password = faker.internet.password();
     const encryptedPassword = await hashPassword(password);
     const userPayload = {
@@ -74,7 +79,7 @@ describe("Users", () => {
     User.create(userPayload).then(() => {
       chai
         .request(app)
-        .post("/users/login")
+        .post('/users/login')
         .send(authPayload)
         .end((err, res) => {
           expect(res).to.have.status(200);

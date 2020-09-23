@@ -1,9 +1,8 @@
 // var express = require("express");
 const passport = require('passport');
 var router = require('express-promise-router')();
-const passportConfg = require('../passport');
 const passportSignIn = passport.authenticate('local', { session: false });
-const { createUser, loginUser } = require('../controllers/user');
+const { createUser, loginUser, verifyUser } = require('../controllers/user');
 // var router = express.Router();
 /* GET users listing. */
 // router.get("/", function (req, res, next) {
@@ -11,6 +10,7 @@ const { createUser, loginUser } = require('../controllers/user');
 // });
 
 router.route('/login').post(passportSignIn, loginUser);
+router.route('/verify').post(verifyUser);
 router.post('/', createUser);
 
 module.exports = router;

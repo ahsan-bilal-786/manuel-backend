@@ -1,5 +1,7 @@
-const { generateJWToken, hashPassword } = require("../helpers/auth");
-const { User } = require("../models");
+const randomstring = require('randomstring');
+const { generateJWToken, hashPassword } = require('../helpers/auth');
+const { User } = require('../models');
+const { sendVerificationEmail } = require('../helpers/sendEmail');
 
 const createUser = async (req, res, next) => {
   let payload = req.body;
@@ -8,13 +10,21 @@ const createUser = async (req, res, next) => {
   if (user !== null)
     return res
       .status(500)
-      .send({ message: "A user has already registered with this email." });
+      .send({ message: 'A user has already registered with this email.' });
 
   payload.password = await hashPassword(payload.password);
+  payload.isVerified = false;
+  payload.verificationCode = randomstring.generate();
   user = await User.create(payload);
 
+  sendVerificationEmail(
+    payload.verificationCode,
+    payload.email,
+    'Verification Code'
+  );
+
   if (!(user && user.id))
-    return res.status(500).send({ message: "Unable to process the request." });
+    return res.status(500).send({ message: 'Unable to process the request.' });
 
   const token = generateJWToken(user);
   const { id, name, email, password, contact, avatar } = user;
@@ -42,7 +52,21 @@ const loginUser = async (req, res, next) => {
   });
 };
 
+const verifyUser = async (req, res, next) => {
+  const token = generateJWToken(req.user);
+  const { id, name, email, contact, avatar } = req.user;
+  res.status(200).json({
+    token,
+    id,
+    name,
+    email,
+    contact,
+    avatar,
+  });
+};
+
 module.exports = {
   createUser,
   loginUser,
+  verifyUser,
 };
