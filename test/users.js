@@ -4,7 +4,6 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const JWT = require('jsonwebtoken');
 const randomstring = require('randomstring');
-const { hashPassword } = require('../helpers/auth');
 const { User } = require('../models');
 
 const { expect } = chai;
@@ -62,32 +61,85 @@ describe('Users', () => {
     });
   });
 
-  it('User Authentication', async () => {
-    const password = faker.internet.password();
-    const encryptedPassword = await hashPassword(password);
-    const userPayload = {
+  it('User Authentication', (done) => {
+    const data = {
       name: faker.name.firstName(),
       email: faker.internet.email(),
-      password: encryptedPassword,
+      password: faker.internet.password(),
       contact: faker.phone.phoneNumber(),
       avatar: faker.image.imageUrl(),
+      isVerified: false,
     };
-    const authPayload = {
-      email: userPayload.email,
-      password,
+    const agent = chai.request.agent(app);
+    agent
+      .post('/users/')
+      .send(data)
+      .then(() => {
+        agent
+          .post('/users/login')
+          .send({ email: data.email, password: data.password })
+          .then((res2) => {
+            expect(res2).to.have.status(200);
+            done();
+          });
+      });
+  });
+
+  it('Verify Users', (done) => {
+    const data = {
+      name: faker.name.firstName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      contact: faker.phone.phoneNumber(),
+      avatar: faker.image.imageUrl(),
+      isVerified: false,
+      verificationCode: randomstring.generate(),
     };
-    User.create(userPayload).then(() => {
-      chai
-        .request(app)
-        .post('/users/login')
-        .send(authPayload)
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body.name).to.equals(userPayload.name);
-          expect(res.body.email).to.equals(userPayload.email);
-          expect(res.body.contact).to.equals(userPayload.contact);
-          expect(res.body.avatar).to.equals(userPayload.avatar);
+    const agent = chai.request.agent(app);
+    agent
+      .post('/users/')
+      .send(data)
+      .then((res) => {
+        return User.findOne({ where: { id: res.body.id } }).then((data) => {
+          return {
+            token: `bearer ${res.body.token}`,
+            verificationCode: data.verificationCode,
+          };
         });
-    });
+      })
+      .then((payload) => {
+        agent
+          .post('/users/verify')
+          .set('Authorization', payload.token)
+          .send({ verificationCode: payload.verificationCode })
+          .then((res2) => {
+            expect(res2).to.have.status(200);
+            done();
+          });
+      });
+  });
+  it('Get Loggedin User Profile', (done) => {
+    const data = {
+      name: faker.name.firstName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      contact: faker.phone.phoneNumber(),
+      avatar: faker.image.imageUrl(),
+      isVerified: false,
+      verificationCode: randomstring.generate(),
+    };
+    const agent = chai.request.agent(app);
+    agent
+      .post('/users/')
+      .send(data)
+      .then((res) => {
+        agent
+          .get('/users/')
+          .set('Authorization', `bearer ${res.body.token}`)
+          .then((res2) => {
+            expect(res2).to.have.status(200);
+            done();
+          });
+      });
   });
 });
