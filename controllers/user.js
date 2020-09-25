@@ -53,20 +53,24 @@ const loginUser = async (req, res, next) => {
 };
 
 const verifyUser = async (req, res, next) => {
-  const token = generateJWToken(req.user);
-  const { id, name, email, contact, avatar } = req.user;
-  res.status(200).json({
-    token,
-    id,
-    name,
-    email,
-    contact,
-    avatar,
-  });
+  if (req.user.verificationCode === req.body.verificationCode) {
+    res.status(200).json({
+      isVerified: true,
+    });
+  } else {
+    res.status(403).json({
+      isVerified: false,
+    });
+  }
+};
+
+const getUserProfile = async (req, res, next) => {
+  res.status(200).json(req.user);
 };
 
 module.exports = {
   createUser,
   loginUser,
   verifyUser,
+  getUserProfile,
 };
