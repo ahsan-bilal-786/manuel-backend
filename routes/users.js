@@ -1,16 +1,14 @@
-// var express = require("express");
-const passport = require('passport');
 var router = require('express-promise-router')();
-const passportSignIn = passport.authenticate('local', { session: false });
-const { createUser, loginUser, verifyUser } = require('../controllers/user');
-// var router = express.Router();
-/* GET users listing. */
-// router.get("/", function (req, res, next) {
-//   res.send("respond with a resource");
-// });
+const {
+  createUser,
+  loginUser,
+  verifyUser,
+  getUserProfile,
+} = require('../controllers/user');
+const { verifyToken, verifySignIn } = require('../middleware/auth');
 
-router.route('/login').post(passportSignIn, loginUser);
-router.route('/verify').post(verifyUser);
-router.post('/', createUser);
+router.route('/login').post(verifySignIn, getUserProfile);
+router.route('/verify').post(verifyToken, verifyUser);
+router.route('/').post(createUser).get(verifyToken, getUserProfile);
 
 module.exports = router;
