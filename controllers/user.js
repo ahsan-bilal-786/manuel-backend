@@ -56,12 +56,15 @@ const loginUser = async (req, res, next) => {
 
 const verifyUser = async (req, res, next) => {
   if (req.user.verificationCode === req.body.verificationCode) {
+    req.user.update({ isVerified: true });
     res.status(200).json({
       isVerified: true,
     });
   } else {
-    res.status(403).json({
-      isVerified: false,
+    return res.status(500).send({
+      errors: {
+        verificationCode: 'Verification Code is invalid.',
+      },
     });
   }
 };
