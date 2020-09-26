@@ -8,9 +8,9 @@ const createUser = async (req, res, next) => {
   let user = await User.findOne({ where: { email: payload.email } });
 
   if (user !== null)
-    return res
-      .status(500)
-      .send({ message: 'A user has already registered with this email.' });
+    return res.status(500).send({
+      errors: { email: 'A user has already registered with this email.' },
+    });
 
   payload.password = await hashPassword(payload.password);
   payload.isVerified = false;
@@ -24,7 +24,9 @@ const createUser = async (req, res, next) => {
   );
 
   if (!(user && user.id))
-    return res.status(500).send({ message: 'Unable to process the request.' });
+    return res
+      .status(500)
+      .send({ errors: { message: 'Unable to process the request.' } });
 
   const token = generateJWToken(user);
   const { id, name, email, password, contact, avatar } = user;
