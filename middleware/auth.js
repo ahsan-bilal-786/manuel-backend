@@ -6,14 +6,17 @@ const verifySignIn = async (req, res, next) => {
   const { email, password } = req.body;
   // Find the user given the email
   const user = await User.findOne({ where: { email } });
-
+  if (!user)
+    return res
+      .status(401)
+      .send({ errors: { message: 'User does not exist.' } });
   // Check if the password is correct
   const isMatch = await comparePassword(password, user.password);
   if (isMatch) {
     req.user = user;
     next();
   } else {
-    res.sendStatus(403);
+    return res.status(401).send({ errors: { message: 'Invalid password.' } });
   }
 };
 
