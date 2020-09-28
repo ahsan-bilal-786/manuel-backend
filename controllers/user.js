@@ -43,7 +43,7 @@ const createUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
   const token = generateJWToken(req.user);
-  const { id, name, email, contact, avatar } = req.user;
+  const { id, name, email, contact, avatar, isVerified } = req.user;
   res.status(200).json({
     token,
     id,
@@ -51,6 +51,7 @@ const loginUser = async (req, res, next) => {
     email,
     contact,
     avatar,
+    isVerified,
   });
 };
 
@@ -70,7 +71,15 @@ const verifyUser = async (req, res, next) => {
 };
 
 const getUserProfile = async (req, res, next) => {
-  res.status(200).json(req.user);
+  const { id, name, email, contact, avatar, isVerified } = req.user;
+  res.status(200).json({
+    id,
+    name,
+    email,
+    contact,
+    avatar,
+    isVerified,
+  });
 };
 
 module.exports = {
