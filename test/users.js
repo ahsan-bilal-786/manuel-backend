@@ -53,7 +53,7 @@ describe('Users', () => {
         .send(data)
         .end((err, res) => {
           expect(res).to.have.status(500);
-          expect(res.body.message).to.equals(
+          expect(res.body.errors.email).to.equals(
             'A user has already registered with this email.'
           );
           done();
