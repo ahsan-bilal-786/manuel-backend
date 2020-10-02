@@ -82,9 +82,24 @@ const getUserProfile = async (req, res, next) => {
   });
 };
 
+const uploadUserPhoto = async (req, res, next) => {
+  if (req.file.filename) {
+    const data = { avatar: `/uploads/${req.file.filename}` };
+    req.user.update(data);
+    res.status(200).json(data);
+  } else {
+    return res.status(500).send({
+      errors: {
+        avatar: 'Image Upload Failed. Please try again later.',
+      },
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   verifyUser,
   getUserProfile,
+  uploadUserPhoto,
 };
