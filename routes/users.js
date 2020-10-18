@@ -8,7 +8,11 @@ const {
   getUserProfile,
   uploadUserPhoto,
 } = require('../controllers/user');
-const { verifyToken, verifySignIn } = require('../middleware/auth');
+const {
+  verifySignupCred,
+  verifyToken,
+  verifySignIn,
+} = require('../middleware/auth');
 
 const Storage = multer.diskStorage({
   destination(req, file, callback) {
@@ -25,10 +29,16 @@ const upload = multer({
 });
 
 router.route('/login').post(verifySignIn, loginUser);
+router.route('/verifySignupCred').post(verifySignupCred, (req, res) => {
+  res.status(200).json(true);
+});
 router.route('/verify').post(verifyToken, verifyUser);
 router
   .route('/photo')
   .post(verifyToken, upload.single('image'), uploadUserPhoto);
-router.route('/').post(createUser).get(verifyToken, getUserProfile);
+router
+  .route('/')
+  .post(verifySignupCred, createUser)
+  .get(verifyToken, getUserProfile);
 
 module.exports = router;

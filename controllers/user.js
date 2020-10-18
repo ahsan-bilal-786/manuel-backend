@@ -5,13 +5,6 @@ const { sendVerificationEmail } = require('../helpers/sendEmail');
 
 const createUser = async (req, res, next) => {
   let payload = req.body;
-  let user = await User.findOne({ where: { email: payload.email } });
-
-  if (user !== null)
-    return res.status(500).send({
-      errors: { email: 'A user has already registered with this email.' },
-    });
-
   payload.password = await hashPassword(payload.password);
   payload.isVerified = false;
   payload.verificationCode = randomstring.generate();

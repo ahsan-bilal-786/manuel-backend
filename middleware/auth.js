@@ -2,6 +2,18 @@ const JWT = require('jsonwebtoken');
 const { User } = require('../models');
 const { comparePassword } = require('../helpers/auth');
 
+const verifySignupCred = async (req, res, next) => {
+  let payload = req.body;
+  let user = await User.findOne({ where: { email: payload.email } });
+
+  if (user !== null)
+    return res.status(500).send({
+      errors: { email: 'A user has already registered with this email.' },
+    });
+
+  next();
+};
+
 const verifySignIn = async (req, res, next) => {
   const { email, password } = req.body;
   // Find the user given the email
@@ -40,4 +52,5 @@ const verifyToken = async (req, res, next) => {
 module.exports = {
   verifyToken,
   verifySignIn,
+  verifySignupCred,
 };
