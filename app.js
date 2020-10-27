@@ -15,7 +15,7 @@ var app = express();
 /**
  * add the local ip address of you system, react native cannot access the apis through local ip address
  */
-var whitelist = ['192.168.10.6'];
+var whitelist = ['192.168.10.2'];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
