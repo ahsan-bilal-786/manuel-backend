@@ -7,7 +7,10 @@ const {
   createPost,
   updatePost,
   deletePost,
-} = require('../controllers/posts');
+} = require('../controllers/post');
+const {
+  verifyToken,
+} = require('../middleware/auth');
 
 const Storage = multer.diskStorage({
   destination(req, file, callback) {
@@ -23,12 +26,12 @@ const upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
 
-router.route('/:postId').get(fetchPost)
-.put(updatePost)
-.delete(deletePost);
+router.route('/:postId').get(verifyToken, fetchPost)
+.put(verifyToken, updatePost)
+.delete(verifyToken, deletePost);
 
-router.route('/').get(fetchAllPosts)
-.post(createPost)
+router.route('/').get(verifyToken, fetchAllPosts)
+.post(verifyToken, createPost)
 
 
 module.exports = router;

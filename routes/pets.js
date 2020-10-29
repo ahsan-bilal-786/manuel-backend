@@ -8,6 +8,9 @@ const {
   updatePet,
   deletePet,
 } = require('../controllers/pet');
+const {
+  verifyToken,
+} = require('../middleware/auth');
 
 const Storage = multer.diskStorage({
   destination(req, file, callback) {
@@ -23,11 +26,11 @@ const upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
 
-router.route('/:petId').get(fetchPetProfile)
-.put(updatePet)
-.delete(deletePet);
+router.route('/:petId').get(verifyToken, fetchPetProfile)
+.put(verifyToken, updatePet)
+.delete(verifyToken, deletePet);
 
-router.route('/').get(fetchAllPets)
-.post(createPet);
+router.route('/').get(verifyToken, fetchAllPets)
+.post(verifyToken, createPet);
 
 module.exports = router;

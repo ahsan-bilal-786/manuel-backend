@@ -1,9 +1,9 @@
 const { Event } = require('../models');
 
-export const fetchAllEvents = async (req, res, next) => {
+const fetchAllEvents = async (req, res, next) => {
     try {
-        const eventCollection = await Event.find({});
-        res.status(201).send(eventCollection);
+        const eventCollection = await Event.findAll();
+        res.status(200).send(eventCollection);
     }
     catch (e) {
         console.log(e);
@@ -11,11 +11,9 @@ export const fetchAllEvents = async (req, res, next) => {
     }
 }
 
-export const fetchEvent = async (req, res, next) => {
+const fetchEvent = async (req, res, next) => {
     try{
-        const eventCollection = await Event.find({
-                id : req.params.eventId
-        });
+        const eventCollection = await Event.findByPk(req.params.eventId);
         if(eventCollection){
             res.status(200).send(eventCollection)
         }else{
@@ -28,11 +26,12 @@ export const fetchEvent = async (req, res, next) => {
 }
 
 
-export const createEvent = async (req, res, next) => {
+const createEvent = async (req, res, next) => {
     try {
-        const { userId, title, startTime, endTime, petId } = req.body;
+        const { title, startTime, endTime, petId } = req.body;
         const eventCollection = await Event.create({
-            userId, title, startTime, endTime, petId
+            userId: req.user.id,
+            title, startTime, endTime, petId
         });
         res.status(201).send(eventCollection);
     }
@@ -42,15 +41,13 @@ export const createEvent = async (req, res, next) => {
     }
 }
 
-export const updateEvent = async (req, res, next) => {
+const updateEvent = async (req, res, next) => {
     try{
-        const eventCollection = await Event.find({
-                id : req.params.petId
-        });
+        const eventCollection = await Event.findByPk(req.params.eventId);
         if(eventCollection){
-            const { userId, title, startTime, endTime, petId } = req.body;
-           const updatedEvent = await Event.update({
-                userId, title, startTime, endTime, petId
+            const { title, startTime, endTime, petId } = req.body;
+           const updatedEvent = await eventCollection.update({
+                title, startTime, endTime, petId
             });
             res.status(201).send(updatedEvent)
         }else{
@@ -62,16 +59,12 @@ export const updateEvent = async (req, res, next) => {
     }
  }
 
-export const deleteEvent = async (req, res, next) => {
+const deleteEvent = async (req, res, next) => {
     try{
-        const eventCollection = await Event.find({
-                id : req.params.eventId
-        });
+        const eventCollection = await Event.findByPk(req.params.eventId);
         if(eventCollection){
-            Event.destroy({
-                where: { id: req.params.eventId }
-            })
-            res.status(200).send(eventCollection)
+            eventCollection.destroy();
+            res.status(204).send(eventCollection)
         }else{
             res.status(404).send("Event Not Found");
         }

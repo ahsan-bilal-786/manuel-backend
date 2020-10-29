@@ -8,6 +8,9 @@ const {
   updateEvent,
   deleteEvent,
 } = require('../controllers/calendarEvents');
+const {
+  verifyToken,
+} = require('../middleware/auth');
 
 const Storage = multer.diskStorage({
   destination(req, file, callback) {
@@ -23,12 +26,12 @@ const upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
 
-router.route('/:eventId').get(fetchEvent)
-.put(updateEvent)
-.delete(deleteEvent);
+router.route('/:eventId').get(verifyToken, fetchEvent)
+.put(verifyToken, updateEvent)
+.delete(verifyToken, deleteEvent);
 
-router.route('/').get(fetchAllEvents)
-.post(createEvent)
+router.route('/').get(verifyToken, fetchAllEvents)
+.post(verifyToken, createEvent)
 
 
 module.exports = router;

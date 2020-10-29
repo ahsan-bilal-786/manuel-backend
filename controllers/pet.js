@@ -1,9 +1,9 @@
 const { Pet } = require('../models');
 
-export const fetchAllPets = async (req, res, next) => {
+const fetchAllPets = async (req, res, next) => {
     try {
-        const petCollection = await Pet.find({});
-        res.status(201).send(petCollection);
+        const petCollection = await Pet.findAll();
+        res.status(200).send(petCollection);
     }
     catch (e) {
         console.log(e);
@@ -11,11 +11,9 @@ export const fetchAllPets = async (req, res, next) => {
     }
 }
 
-export const fetchPetProfile = async (req, res, next) => {
+const fetchPetProfile = async (req, res, next) => {
     try{
-        const petCollection = await Pet.find({
-                id : req.params.petId
-        });
+        const petCollection = await Pet.findByPk(req.params.petId);
         if(petCollection){
             res.status(200).send(petCollection)
         }else{
@@ -27,11 +25,12 @@ export const fetchPetProfile = async (req, res, next) => {
     }
 }
 
-export const createPet = async (req, res, next) => {
+const createPet = async (req, res, next) => {
     try {
-        const { userId, name, avatar, height, weight, dob, petType } = req.body;
+        const { name, avatar, height, weight, dob, petType } = req.body;
         const petCollection = await Pet.create({
-            userId, name, avatar, height, weight, dob, petType
+            userId: req.user.id,
+            name, avatar, height, weight, dob, petType
         });
         res.status(201).send(petCollection);
     }
@@ -41,14 +40,12 @@ export const createPet = async (req, res, next) => {
     }
 }
 
-export const updatePet = async (req, res, next) => {
+const updatePet = async (req, res, next) => {
     try{
-        const petCollection = await Pet.find({
-                id : req.params.petId
-        });
+        const petCollection = await Pet.findByPk(req.params.petId);
         if(petCollection){
             const { name, avatar, height, weight, dob, petType } = req.body;
-           const updatedPet = await Pet.update({
+           const updatedPet = await petCollection.update({
                 name, avatar, height, weight, dob, petType
             });
             res.status(201).send(updatedPet)
@@ -61,16 +58,12 @@ export const updatePet = async (req, res, next) => {
     }
  }
 
-export const deletePet = async (req, res, next) => {
+const deletePet = async (req, res, next) => {
     try{
-        const petCollection = await Pet.find({
-                id : req.params.petId
-        });
+        const petCollection = await Pet.findByPk(req.params.petId);
         if(petCollection){
-            Pet.destroy({
-                where: { id: req.params.petId }
-            })
-            res.status(200).send(petCollection)
+            await petCollection.destroy()
+            res.status(204).send(petCollection)
         }else{
             res.status(404).send("Pet Not Found");
         }

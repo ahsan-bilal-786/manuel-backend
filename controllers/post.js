@@ -1,9 +1,9 @@
 const { Post } = require('../models');
 
-export const fetchAllPosts = async (req, res, next) => {
+const fetchAllPosts = async (req, res, next) => {
     try {
-        const postCollection = await Post.find({});
-        res.status(201).send(postCollection);
+        const postCollection = await Post.findAll();
+        res.status(200).send(postCollection);
     }
     catch (e) {
         console.log(e);
@@ -11,11 +11,9 @@ export const fetchAllPosts = async (req, res, next) => {
     }
 }
 
-export const fetchPost = async (req, res, next) => {
+const fetchPost = async (req, res, next) => {
     try{
-        const postCollection = await Post.find({
-                id : req.params.postId
-        });
+        const postCollection = await Post.findByPk(req.params.postId);
         if(postCollection){
             res.status(200).send(postCollection)
         }else{
@@ -27,7 +25,7 @@ export const fetchPost = async (req, res, next) => {
     }
 }
 
-export const createPost = async (req, res, next) => {
+const createPost = async (req, res, next) => {
     try {
         const { description, avatar, profileId, profileType } = req.body;
         const postCollection = await Post.create({
@@ -41,14 +39,12 @@ export const createPost = async (req, res, next) => {
     }
 }
 
-export const updatePost = async (req, res, next) => {
+const updatePost = async (req, res, next) => {
     try{
-        const postCollection = await Post.find({
-                id : req.params.postId
-        });
+        const postCollection = await Post.findByPk(req.params.postId);
         if(postCollection){
             const { description, avatar, profileId, profileType } = req.body;
-           const updatedpost = await Post.update({
+           const updatedpost = await postCollection.update({
                 description, avatar, profileId, profileType
             });
             res.status(201).send(updatedpost)
@@ -61,16 +57,12 @@ export const updatePost = async (req, res, next) => {
     }
  }
 
-export const deletePost = async (req, res, next) => {
+const deletePost = async (req, res, next) => {
     try{
-        const postCollection = await Post.find({
-                id : req.params.postId
-        });
+        const postCollection = await Post.findByPk(req.params.postId);
         if(postCollection){
-            Post.destroy({
-                where: { id: req.params.postId }
-            })
-            res.status(200).send(postCollection)
+            postCollection.destroy();
+            res.status(204).send(postCollection)
         }else{
             res.status(404).send("Post Not Found");
         }
