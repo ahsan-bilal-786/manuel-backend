@@ -3,6 +3,7 @@ const path = require('path');
 const multer = require('multer');
 const {
   fetchEvent,
+  fetchUserEvents,
   fetchAllEvents,
   createEvent,
   updateEvent,
@@ -29,6 +30,8 @@ const upload = multer({
 router.route('/:eventId').get(verifyToken, fetchEvent)
 .put(verifyToken, updateEvent)
 .delete(verifyToken, deleteEvent);
+
+router.route('/user/:midDate').get(verifyToken, fetchUserEvents);
 
 router.route('/').get(verifyToken, fetchAllEvents)
 .post(verifyToken, createEvent)

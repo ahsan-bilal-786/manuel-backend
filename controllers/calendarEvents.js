@@ -1,8 +1,31 @@
+const moment = require('moment');
+const { Op } = require('sequelize')
 const { Event } = require('../models');
 
 const fetchAllEvents = async (req, res, next) => {
     try {
         const eventCollection = await Event.findAll();
+        res.status(200).send(eventCollection);
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).send(e);
+    }
+}
+
+const fetchUserEvents = async (req, res, next) => {
+    try {
+        const eventCollection = await Event.findAll({
+            where: {
+                userId: req.user.id,
+                startTime: {
+                   [Op.gte]: moment(req.params.midDate, "YYYY-MM-DD").subtract(15, 'days').toDate()
+                },
+                endTime: {
+                   [Op.lte]: moment(req.params.midDate, "YYYY-MM-DD").add(15, 'days').toDate()
+                }
+            }
+        });
         res.status(200).send(eventCollection);
     }
     catch (e) {
@@ -29,10 +52,14 @@ const fetchEvent = async (req, res, next) => {
 const createEvent = async (req, res, next) => {
     try {
         const { title, startTime, endTime, petId } = req.body;
-        const eventCollection = await Event.create({
+        const payload = {
             userId: req.user.id,
-            title, startTime, endTime, petId
-        });
+            title,
+            startTime,
+            endTime,
+            petId: 1
+        }
+        const eventCollection = await Event.create(payload);
         res.status(201).send(eventCollection);
     }
     catch (e) {
@@ -78,6 +105,7 @@ const deleteEvent = async (req, res, next) => {
 module.exports = {
     fetchEvent,
     fetchAllEvents,
+    fetchUserEvents,
     createEvent,
     updateEvent,
     deleteEvent,
