@@ -70,7 +70,12 @@ const createEvent = async (req, res, next) => {
 
 const updateEvent = async (req, res, next) => {
     try{
-        const eventCollection = await Event.findByPk(req.params.eventId);
+        const eventCollection = await Event.findOne({
+            where: {
+                id: req.params.eventId,
+                userId: req.user.id
+            }
+        });
         if(eventCollection){
             const { title, startTime, endTime, petId } = req.body;
            const updatedEvent = await eventCollection.update({
@@ -88,7 +93,12 @@ const updateEvent = async (req, res, next) => {
 
 const deleteEvent = async (req, res, next) => {
     try{
-        const eventCollection = await Event.findByPk(req.params.eventId);
+        const eventCollection = await Event.findOne({
+            where: {
+                id: req.params.eventId,
+                userId: req.user.id
+            }
+        });
         if(eventCollection){
             eventCollection.destroy();
             res.status(204).send(eventCollection)
