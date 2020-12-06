@@ -1,6 +1,6 @@
 const randomstring = require('randomstring');
 const { generateJWToken, hashPassword } = require('../helpers/auth');
-const { User } = require('../models');
+const { User, Pet } = require('../models');
 const { sendVerificationEmail } = require('../helpers/sendEmail');
 
 const createUser = async (req, res, next) => {
@@ -64,6 +64,11 @@ const verifyUser = async (req, res, next) => {
 };
 
 const getUserProfile = async (req, res, next) => {
+  const pets = await Pet.findAll({
+    where: {
+      userId: req.user.id
+    }
+  });
   const { id, name, email, contact, avatar, isVerified } = req.user;
   res.status(200).json({
     id,
@@ -72,6 +77,7 @@ const getUserProfile = async (req, res, next) => {
     contact,
     avatar,
     isVerified,
+    pets
   });
 };
 
