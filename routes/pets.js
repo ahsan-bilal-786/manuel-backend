@@ -27,10 +27,10 @@ const upload = multer({
 });
 
 router.route('/:petId').get(verifyToken, fetchPetProfile)
-.put(verifyToken, updatePet)
+.put(verifyToken, upload.single('avatar'), updatePet)
 .delete(verifyToken, deletePet);
 
 router.route('/').get(verifyToken, fetchAllPets)
-.post(verifyToken, createPet);
+.post(verifyToken, upload.single('avatar'), createPet);
 
 module.exports = router;

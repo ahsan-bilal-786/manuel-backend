@@ -27,11 +27,19 @@ const fetchPetProfile = async (req, res, next) => {
 
 const createPet = async (req, res, next) => {
     try {
-        const { name, avatar, height, weight, dob, petType } = req.body;
-        const petCollection = await Pet.create({
+        
+        let avatar = '';
+        if (req.file && req.file.filename) {
+            avatar =  `/uploads/${req.file.filename}`;
+        }        
+        const { name, height, weight, dob, petType } = req.body;
+
+        const payload = {
             userId: req.user.id,
-            name, avatar, height, weight, dob, petType
-        });
+            dob: dob,
+            name, avatar, height, weight,  petType, avatar
+        }
+        const petCollection = await Pet.create(payload);
         res.status(201).send(petCollection);
     }
     catch (e) {
@@ -44,13 +52,17 @@ const updatePet = async (req, res, next) => {
     try{
         const petCollection = await Pet.findByPk(req.params.petId);
         if(petCollection){
-            const { name, avatar, height, weight, dob, petType } = req.body;
+            let avatar = petCollection.avatar;
+            if (req.file && req.file.filename) {
+                avatar =  `/uploads/${req.file.filename}`;
+            }        
+            const { name, height, weight, dob, petType } = req.body;
            const updatedPet = await petCollection.update({
-                name, avatar, height, weight, dob, petType
+                name, height, weight, dob, petType, avatar
             });
             res.status(201).send(updatedPet)
         }else{
-            res.status(404).send("Pet Not Found");
+            res.status(500).send("Pet Not Found");
         }
     }catch(e){
         console.log(e);
