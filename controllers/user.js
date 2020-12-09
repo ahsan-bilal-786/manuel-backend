@@ -86,8 +86,10 @@ const getUserProfile = async (req, res, next) => {
 };
 
 const uploadUserPhoto = async (req, res, next) => {
+  console.log("-----req.file------", req.file);
   if (req.file.filename) {
     const data = { avatar: `/uploads/${req.file.filename}` };
+    console.log("-----data------", data);
     req.user.update(data);
     res.status(200).json(data);
   } else {
