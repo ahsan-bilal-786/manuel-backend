@@ -64,21 +64,25 @@ const verifyUser = async (req, res, next) => {
 };
 
 const getUserProfile = async (req, res, next) => {
-  const pets = await Pet.findAll({
-    where: {
-      userId: req.user.id
-    }
-  });
-  const { id, name, email, contact, avatar, isVerified } = req.user;
-  res.status(200).json({
-    id,
-    name,
-    email,
-    contact,
-    avatar,
-    isVerified,
-    pets
-  });
+  try{
+    const pets = await Pet.findAll({
+      where: {
+        userId: req.user.id
+      }
+    });
+    const { id, name, email, contact, avatar, isVerified } = req.user;
+    res.status(200).json({
+      id,
+      name,
+      email,
+      contact,
+      avatar,
+      isVerified,
+      pets
+    });
+  }catch(err){
+    console.log(err);
+  }
 };
 
 const uploadUserPhoto = async (req, res, next) => {

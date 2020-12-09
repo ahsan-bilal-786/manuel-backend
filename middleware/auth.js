@@ -36,13 +36,18 @@ const verifyToken = async (req, res, next) => {
   const bearerHeader = req.headers['authorization'];
 
   if (bearerHeader) {
-    const bearer = bearerHeader.split(' ');
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
-    const decoded = JWT.verify(req.token, process.env.AUTH_SECRET_KEY);
-    const user = await User.findOne({ where: { id: decoded.sub } });
-    req.user = user;
-    next();
+    try{
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      const decoded = JWT.verify(req.token, process.env.AUTH_SECRET_KEY);
+      const user = await User.findOne({ where: { id: decoded.sub } });
+      req.user = user;
+      next();
+    }catch(err){
+      console.log(err);
+    }
+    
   } else {
     // Forbidden
     res.sendStatus(403);
