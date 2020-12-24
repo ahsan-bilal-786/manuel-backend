@@ -1,6 +1,6 @@
 const moment = require('moment');
 const { Op } = require('sequelize')
-const { Event } = require('../models');
+const { Event, Pet } = require('../models');
 
 const fetchAllEvents = async (req, res, next) => {
     try {
@@ -24,7 +24,15 @@ const fetchUserEvents = async (req, res, next) => {
                 endTime: {
                    [Op.lte]: moment(req.params.midDate, "YYYY-MM-DD").add(15, 'days').toDate()
                 }
-            }
+            },
+            include:[
+                {
+                    model: Pet,
+                    attributes: ['name','avatar'],
+                    as: 'pet'
+                }
+            ]
+
         });
         res.status(200).send(eventCollection);
     }
@@ -57,7 +65,7 @@ const createEvent = async (req, res, next) => {
             title,
             startTime,
             endTime,
-            petId: 1
+            petId
         }
         const eventCollection = await Event.create(payload);
         res.status(201).send(eventCollection);

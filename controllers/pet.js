@@ -2,7 +2,11 @@ const { Pet } = require('../models');
 
 const fetchAllPets = async (req, res, next) => {
     try {
-        const petCollection = await Pet.findAll();
+        const petCollection = await Pet.findAll({
+            where: {
+              userId: req.user.id
+            }
+          });
         res.status(200).send(petCollection);
     }
     catch (e) {
