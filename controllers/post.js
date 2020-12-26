@@ -80,11 +80,11 @@ const updatePost = async (req, res, next) => {
     try{
         const postCollection = await Post.findByPk(req.params.postId);
         if(postCollection){
-            const { description, avatar, profileId, profileType } = req.body;
+            const { description } = req.body;
            const updatedpost = await postCollection.update({
-                description, avatar, profileId, profileType
+                description
             });
-            res.status(201).send(updatedpost)
+            res.status(200).send(updatedpost)
         }else{
             res.status(404).send("Post Not Found");
         }
