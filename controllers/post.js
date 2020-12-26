@@ -11,6 +11,40 @@ const fetchAllPosts = async (req, res, next) => {
     }
 }
 
+const fetchAllUserPosts = async (req, res, next) => {
+    try {
+        const postCollection = await Post.findAll({
+            where: {
+                profileId: req.user.id,
+                profileType: 'user'
+            }
+        });
+        res.status(200).send(postCollection);
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).send(e);
+    }
+}
+
+
+const fetchAllPetPosts = async (req, res, next) => {
+    try {
+        const postCollection = await Post.findAll({
+            where: {
+                profileId: req.params.petId,
+                profileType: 'pet'
+            }
+        });
+        res.status(200).send(postCollection);
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).send(e);
+    }
+}
+
+
 const fetchPost = async (req, res, next) => {
     try{
         const postCollection = await Post.findByPk(req.params.postId);
@@ -27,7 +61,10 @@ const fetchPost = async (req, res, next) => {
 
 const createPost = async (req, res, next) => {
     try {
-        const { description, avatar, profileId, profileType } = req.body;
+        const { description, profileType } = req.body;
+
+        const avatar = req.file.filename ? `/uploads/${req.file.filename}` : "";
+        const profileId = profileType === 'user' ? req.user.id : req.body.profileId;
         const postCollection = await Post.create({
             description, avatar, profileId, profileType
         });
@@ -76,6 +113,8 @@ const deletePost = async (req, res, next) => {
 module.exports = {
     fetchPost,
     fetchAllPosts,
+    fetchAllUserPosts,
+    fetchAllPetPosts,
     createPost,
     updatePost,
     deletePost,

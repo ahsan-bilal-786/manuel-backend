@@ -4,6 +4,8 @@ const multer = require('multer');
 const {
   fetchPost,
   fetchAllPosts,
+  fetchAllUserPosts,
+  fetchAllPetPosts,
   createPost,
   updatePost,
   deletePost,
@@ -26,12 +28,19 @@ const upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 },
 });
 
+router.route('/user').get(verifyToken, fetchAllUserPosts)
+router.route('/pet/:petId').get(verifyToken, fetchAllPetPosts)
+
+
 router.route('/:postId').get(verifyToken, fetchPost)
 .put(verifyToken, updatePost)
 .delete(verifyToken, deletePost);
 
+
+
 router.route('/').get(verifyToken, fetchAllPosts)
-.post(verifyToken, createPost)
+.post(verifyToken, upload.single('avatar'), createPost)
+
 
 
 module.exports = router;
