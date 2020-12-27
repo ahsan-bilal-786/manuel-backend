@@ -64,7 +64,7 @@ const createPost = async (req, res, next) => {
         const { description, profileType } = req.body;
 
         const avatar = req.file.filename ? `/uploads/${req.file.filename}` : "";
-        const profileId = profileType === 'user' ? req.user.id : req.body.profileId;
+        const profileId = profileType === 'user' ? req.user.id : parseInt(req.body.profileId);
         const postCollection = await Post.create({
             description, avatar, profileId, profileType
         });
